@@ -1,43 +1,36 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
+
   <head>
-    <meta charset="utf-8">
+    <meta charset='utf-8'>
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <title>T-Rex Runner by FracturedCodes</title>
-    <link rel="stylesheet" href="stylesheets/styles.css">
-    <link rel="stylesheet" href="stylesheets/github-dark.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
-    <script src="javascripts/respond.js"></script>
-    <!--[if lt IE 9]>
-      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-    <!--[if lt IE 8]>
-    <link rel="stylesheet" href="stylesheets/ie.css">
-    <![endif]-->
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="description" content="T-Rex Runner : Final project">
 
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>T-Rex Runner</title>
   </head>
+
   <body>
-      <div id="header">
-        <nav>
-          <li class="fork"><a href="https://github.com/FracturedCodes/trexRunner">View On GitHub</a></li>
-          <li class="downloads"><a href="https://github.com/FracturedCodes/trexRunner/zipball/master">ZIP</a></li>
-          <li class="downloads"><a href="https://github.com/FracturedCodes/trexRunner/tarball/master">TAR</a></li>
-          <li class="title">DOWNLOADS</li>
-        </nav>
-      </div><!-- end header -->
 
-    <div class="wrapper">
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/FracturedCodes/trexRunner">View on GitHub</a>
 
-      <section>
-        <div id="title">
-          <h1>T-Rex Runner</h1>
-          <p>Final project</p>
-          <hr>
-          <span class="credits left">Project maintained by <a href="https://github.com/FracturedCodes">FracturedCodes</a></span>
-          <span class="credits right">Hosted on GitHub Pages &mdash; Theme by <a href="https://twitter.com/michigangraham">mattgraham</a></span>
-        </div>
+          <h1 id="project_title">T-Rex Runner</h1>
+          <h2 id="project_tagline">Final project</h2>
 
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/FracturedCodes/trexRunner/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/FracturedCodes/trexRunner/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
         <h3>
 <a id="welcome-to-the-t-rex-runner-project" class="anchor" href="#welcome-to-the-t-rex-runner-project" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Welcome to the T-Rex Runner project.</h3>
 
@@ -59,9 +52,10 @@
 <ol>
 <li>Good practice is to create a separate folder for your project, so go ahead and do that.</li>
 <li>Open up your text editor and create a new file named <code>trexRunner.java</code>.</li>
-<li>Import the necessary classes we will be using, in this case
-{% highlight java %}
-import javafx.application.Application;
+<li>Import the necessary classes we will be using, in this case</li>
+</ol>
+
+<pre><code>import javafx.application.Application;
 import javafx.stage.Stage;
 import javafx.scene.Scene;
 import javafx.scene.Group;
@@ -74,18 +68,24 @@ import javafx.scene.text.FontWeight;
 import javafx.animation.AnimationTimer;
 import javafx.event.EventHandler;
 import javafx.scene.input.KeyEvent;
-{% endhighlight %}
+</code></pre>
 
 <ol>
 <li>Create the main class we will be working with. Since this is going to be a JavaFX application, the class should extend <code>javafx.application.Application</code>
 public class trexRunner extends Application {}</li>
 </ol>
-</li>
-</ol>
       </section>
-
     </div>
-    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">T-Rex Runner maintained by <a href="https://github.com/FracturedCodes">FracturedCodes</a></p>
+        <p>Published with <a href="https://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
     
+
   </body>
 </html>
