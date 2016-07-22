@@ -71,11 +71,411 @@ import javafx.scene.input.KeyEvent;
 </code></pre>
 
 <ol>
-<li>Create the main class we will be working with. Since this is going to be a JavaFX application, the class should extend <code>javafx.application.Application</code>
-</li>
+<li>Create the main class we will be working with. Since this is going to be a JavaFX application, the class should extend <code>javafx.application.Application</code>.</li>
 </ol>
 
 <pre><code>public class trexRunner extends Application {}
+</code></pre>
+
+<h3>
+<a id="follow-along" class="anchor" href="#follow-along" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Follow along...</h3>
+
+<p>JavaFX applications follow a pretty easy to understand pattern:</p>
+
+<ul>
+<li>The main class launches (<code>launch()</code>) the application</li>
+<li>The <code>init()</code> method is called</li>
+<li>The <code>start()</code> method is called</li>
+<li>
+<code>stop()</code> is called when the program needs to exit</li>
+</ul>
+
+<p>The <code>start()</code> method is where we will be doing most of our magic. A stage is a JavaFX container. Stages control basic window properties. Each time an application is run, a stage is created and passed to the <code>start()</code> method. After stages have been configured, they are made visible with the <code>show()</code> method (stage.show().) So to start out we'll make a very basic application.</p>
+
+<pre><code>public class trexRunner extends Application {
+    public static void main (String[] args) {
+        launch(args);        // Launch the application
+    }
+    @Override                // Start is an abstract method from Application, so we will define it
+    public void start(Stage gameStage) {
+        gameStage.setTitle("T-Rex Runner");    // Set the window title
+        gameStage.show();                      // Show the window
+    }
+}
+</code></pre>
+
+<p>Compile and run the program with <code>javac -g trexRunner.java &amp;&amp; java trexRunner</code>. If all goes well, you should see a blank, white window with the title "T-Rex Runner."</p>
+
+<h3>
+<a id="the-magic-begins" class="anchor" href="#the-magic-begins" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>The magic begins...</h3>
+
+<p><code>start()</code> is basically where our game happens; from here on out we will not touch anything else much.
+To save space we will show only <code>start()</code>.</p>
+
+<p>There may have been a short moment of triumph after you ran that program, but it was very brief; It's very boring! But considering that we only need 12 lines of code (after removing unnecessary packages), JavaFX is a very easy option as opposed to some other low-level options, but there are definitely some disadvantages as opposed to using other graphics libraries <em>cough</em>OpenGL<em>cough</em>. Let's make this a little less boring, and <em>start()</em> ;) making the game (pun intended.)
+(Note: If you see code blocks and don't know where to put them, they probably go in <code>start()</code>.)</p>
+
+<p>JavaFX is organized in a tree-like structure, starting with the root, and "branching out" to other nodes. Every node that is configured in some way also applies to any child nodes. Start by adding this between <code>setTitle()</code> and <code>show()</code>:</p>
+
+<pre><code>Group root = new Group();          // Creates a new group
+Scene gameScene = new Scene(root); // The scene uses the tree "root"
+gameStage.setScene(gameScene);     // The stage uses the scene
+
+Canvas gameCanvas = new Canvas(800, 230);// The canvas is created, the constructor params indicate size in (x, y)
+root.getChildren().add(gameCanvas);// The canvas is added as a node in the root tree
+</code></pre>
+
+<p>This sets up the tree and ties it to the window. The canvas is created and in turn the window size is set. Now we'll draw the game, after the last code block, add this (still in between setTitle and show):</p>
+
+<pre><code>GraphicsContext gc = gameCanvas.getGraphicsContext2D();      // Creates a graphics context so we can edit the canvas
+String ground = "________________________________________________________________";// This string will be the ground for the dinosaur
+gc.setFill(Color.BLACK);                   // Set the fill color to black
+gc.setLineWidth(2);                        // The thickness of lines will be 2
+Font gameFont = Font.font("Times New Roman", FontWeight.LIGHT, 20);// For now we will use Times New Roman
+gc.setFont(gameFont);                      // This tells the graphics context to use Times New Roman
+gc.fillText(ground, 80, 160);              // Now we draw the ground in TNR at 80 (pixels) right, 160 down
+
+Image trex = new Image("trex.png");        // Load images of trex and cactus
+Image cactus = new Image("cactus.png");
+gc.drawImage(trex, 80, 100);               // Now draw the images to the canvas
+gc.drawImage(cactus, 300, 110);
+</code></pre>
+
+<p>Compile and run the program... What happens? Your likely answer was "I see a picture, then nothing happens." If this was not your answer, backtrack and check for mistakes. What you should have seen was a long window. Inside this window should have been a trex, a cactus, and a flat ground. Pretty boring, huh. At this point, your code should look something like this:</p>
+
+<pre><code>@Override
+public void start(Stage gameStage) {
+    gameStage.setTitle("T-Rex Runner");
+
+    Group root = new Group();        
+    Scene gameScene = new Scene(root); 
+    gameStage.setScene(gameScene);     
+
+    Canvas gameCanvas = new Canvas(800, 230);
+    root.getChildren().add(gameCanvas);
+
+    GraphicsContext gc = gameCanvas.getGraphicsContext2D();      
+    String ground = "________________________________________________________________";
+    gc.setFill(Color.BLACK);    
+    gc.setLineWidth(2);                        
+    Font gameFont = Font.font("Times New Roman", FontWeight.LIGHT, 20);
+    gc.setFont(gameFont);                 
+    gc.fillText(ground, 80, 160);              
+
+    Image trex = new Image("trex.png");      
+    Image cactus = new Image("cactus.png");
+    gc.drawImage(trex, 80, 100);         
+    gc.drawImage(cactus, 300, 110);
+
+    gameStage.show();
+}
+</code></pre>
+
+<p>Now we can start making this a <em>game</em>; all games have to be dynamic, and so far this one isn't.
+To be dynamic games use what is called a game loop. Game loops are exactly that. They're loops. To make our game loop, we'll create an <code>AnimationTimer</code>: <code>new AnimationTimer() {}.start();</code></p>
+
+<p>For now it'll be fine if we can get the dinosaur moving. It doesn't matter if it can hit cacti or jump we just need to get in moving. To get the dinosaur moving, we are going to move the cactus. This gives the illusion that the T-Rex is moving and we're moving with the t-rex. This is a bit tricky. We could be lazy and have animations handled frame-by-frame, but this can cause timing problems and unpredictability. To handle this we need a sense of time, not a frame counter. This is generally done by utilizing time in nanoseconds.</p>
+
+<pre><code>new AnimationTimer() {
+    public void handle(long currentNanoTime) {
+    }
+}.start();
+</code></pre>
+
+<p>Every time the timer loops, it calls the <code>handle(nanoTime)</code> function and gives it the current time in nanoseconds. The idea is to <em>time</em> the animations, not to make everything frame by frame. A nanosecond is 1 trillionth of a second, and if we're aiming for around 60 frames per second, the threshold for updating the positon of the cactus is every 16,666,666 nanoseconds.</p>
+
+<pre><code>new AnimationTimer() {
+    long lastNanoTime = System.nanoTime();     // Records the time in nanoseconds
+    int cactusX = 800;                         // Tells what X value the cactus should start on
+    public void handle(long currentNanoTime) {
+        long t = (currentNanoTime - lastNanoTime);// t is a representation of how many nanoseconds have passed since the last frame
+        if (t &gt;= 16666666) {          // The if checks if enough time has passed for another frame, if not then the timer loops again
+            while (t &gt;= 16666666) {   // This while loop adjusts the cactus until it makes up for lost time
+                cactusX -= 5;
+                t -= 16666666;
+            }
+            gc.clearRect(0, 0, 800, 230);// Clears the canvas
+            gc.fillText(ground, 80, 160);//Draw the ground, the trex and cactus
+        gc.drawImage(trex, 80, 100);
+            gc.drawImage(cactus, cactusX, 110);// Draws cactus on x value calculated in the while loop
+            lastNanoTime = System.nanoTime();  // Updates the nano time to the frame just drawn
+        }
+    }
+}.start();
+</code></pre>
+
+<p>Once you compile and run that try adjusting the nano second values in the if and while statements. If the framerate is a bit choppy, increase or lower the value from 16666666. Mess around until you see what works.  Be aware that this will affect the speed of the cactus, so you might also want to adjust the <code>cactusX -= 5;</code> statement in the while loop.</p>
+
+<h3>
+<a id="huzzah-a-wild-cactus-appears" class="anchor" href="#huzzah-a-wild-cactus-appears" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Huzzah! A wild cactus appears!</h3>
+
+<p>If you haven't been having the best of luck, try this source code, which is what we've done up to this point.</p>
+
+<pre><code>import javafx.application.Application;
+import javafx.stage.Stage;
+import javafx.scene.Scene;
+import javafx.scene.Group;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import javafx.animation.AnimationTimer;
+import javafx.event.EventHandler;
+import javafx.scene.input.KeyEvent;
+
+public class trexRunner extends Application {
+    public static void main(String[] args) {
+        launch(args);
+    }
+
+    @Override
+    public void start(Stage gameStage) {
+        gameStage.setTitle("T-Rex Runner");
+
+        Group root = new Group();        
+        Scene gameScene = new Scene(root); 
+        gameStage.setScene(gameScene);     
+
+        Canvas gameCanvas = new Canvas(800, 230);
+        root.getChildren().add(gameCanvas);
+
+        GraphicsContext gc = gameCanvas.getGraphicsContext2D();      
+        String ground = "________________________________________________________________";
+        gc.setFill(Color.BLACK);    
+        gc.setLineWidth(2);                        
+        Font gameFont = Font.font("Times New Roman", FontWeight.LIGHT, 20);
+        gc.setFont(gameFont);                 
+        gc.fillText(ground, 80, 160);              
+
+        Image trex = new Image("trex.png");      
+        Image cactus = new Image("cactus.png");
+        gc.drawImage(trex, 80, 100);         
+        gc.drawImage(cactus, 300, 110);
+
+        new AnimationTimer() {
+            long lastNanoTime = System.nanoTime();
+            int cactusX = 800;
+            public void handle(long currentNanoTime) {
+                long t = (currentNanoTime - lastNanoTime);
+                if (t &gt;= 16666666) {
+                    while (t &gt;= 16666666) {
+                        cactusX -= 5;
+                        t -= 16666666;
+                    }
+                    gc.clearRect(0, 0, 800, 230);
+                    gc.fillText(ground, 80, 160);
+                gc.drawImage(trex, 80, 100);
+                    gc.drawImage(cactus, cactusX, 110);
+                    lastNanoTime = System.nanoTime();
+                }
+            }
+        }.start();
+
+        gameStage.show();
+    }
+}
+</code></pre>
+
+<p>You may have noticed that the cactus scrolls across the screen... And then doesn't come back! This is because the while loop keeps on subtracting 5 from the x coordinate of the cactus, even into the negatives. This means we need a way to reset the cactus when it reaches the end of the screen. Luckily we can just use an if-else in the while loop to fix this.</p>
+
+<pre><code>while (t &gt;= 16666666) {
+    if (cactusX &lt;= 30) {
+        cactusX = 700;
+    } else {
+        cactusX -= 5;
+    }
+    t -= 16666666;
+}
+</code></pre>
+
+<p>Now that we have included the game loop, some of our code has become obsolete. Delete any <code>gc.drawImage()</code> or <code>gc.fillText()</code> that is NOT in the game loop. i.e. <code>gc.drawImage(trex, x, y);</code></p>
+
+<h3>
+<a id="the-t-rex-and-the-cactus-become-enemies" class="anchor" href="#the-t-rex-and-the-cactus-become-enemies" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>The T-Rex and the Cactus become enemies...</h3>
+
+<p>Now there's two major features of the game we're missing: the ability to control the t-rex/jump, and the cactus being able to hit the t-rex. Because we don't want to make this a huge tutorial (We could find features to add all day), we'll just add the former feature, as it is much easier to create.</p>
+
+<p>First we need to set up input for the Scene. We can do so by adding the following code directly before the game loop (<code>AnimationTimer()</code>):</p>
+
+<pre><code>ArrayList&lt;String&gt; input = new ArrayList&lt;String&gt;();
+
+gameScene.setOnKeyPressed(
+    new EventHandler&lt;KeyEvent&gt;() {
+        public void handle(KeyEvent e) {
+            String code = e.getCode().toString();
+                if ( !input.contains(code) )
+                    input.add( code );
+                }
+            });
+gameScene.setOnKeyReleased(
+    new EventHandler&lt;KeyEvent&gt;() {
+        public void handle(KeyEvent e) {
+            String code = e.getCode().toString();
+            input.remove( code );
+        }
+            });
+</code></pre>
+
+<p>Then you also need to add <code>import java.util.ArrayList;</code> to the top of your file.</p>
+
+<p>This code has set up event handlers to listen for input, but we're not using the input for anything yet. What we want to do is set up the space bar and up arrow key for jumping. Just like we changed the state of the cactus in the game loop, we will also change the state of the t-rex. Since we want the trex moving up and down (y-axis), we will create a variable called trexY (a lot like cactusX), and set it to 100 (the normal position of the t-rex.) Then we will create a boolean trexPeak, which will indicate if the trex has jumped as high as it can/is already on it's way down. Then we need a series of four if statements in order to cover all the possibilities: the trex is on its way up, the trex has reached its max height, the trex has on its way down and the trex has reach the ground. In the end the game loop should look like:</p>
+
+<pre><code>new AnimationTimer() {
+            long lastNanoTime = System.nanoTime();
+            int cactusX = 800;
+            int trexY = 100;           // Trex ground level
+            boolean trexPeak = false;  // Peak of the trex jump y/n
+            public void handle(long currentNanoTime) {
+                long t = (currentNanoTime - lastNanoTime);
+                if (t &gt;= 16666666) {
+                    while (t &gt;= 16666666) {
+
+                        if (input.contains("SPACE") || input.contains("UP") {     // If space or up is pressed
+                            if (!trexPeak &amp;&amp; trexY&gt;5) {//Continue up if space is pressed andpeak isn't reached
+                                trexY -= 5;
+                            } else if (!trexPeak &amp;&amp; trexY&lt;=5) {//Tell that the trex has peaked
+                                trexPeak = true;
+                            } else if (trexPeak &amp;&amp; trexY&lt;100) {//Continue down while space is pressed and not
+                                trexY += 5;                // at ground
+                            } else if (trexPeak &amp;&amp; trexY&gt;=100) {//Tell that trex is at ground
+                                trexPeak = false;
+        } else {
+            trexY = 100;//Reset to ground when user lifts space or up
+        }
+
+        if (cactusX &lt;= 30) {
+            cactusX = 700;
+        } else {
+            cactusX -= 5;
+        }
+        t -= 16666666;
+            }
+            gc.clearRect(0, 0, 800, 230);
+            gc.fillText(ground, 80, 160);
+            gc.drawImage(trex, 80, trexY);
+            gc.drawImage(cactus, cactusX, 110);
+            lastNanoTime = System.nanoTime();
+        }
+    }
+}.start();
+</code></pre>
+
+<h3>
+<a id="hooray-youve-made-it-far" class="anchor" href="#hooray-youve-made-it-far" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Hooray! You've made it far!</h3>
+
+<p>The end code should look like:</p>
+
+<pre><code>import javafx.application.Application;
+import javafx.stage.Stage;
+import javafx.scene.Scene;
+import javafx.scene.Group;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import javafx.animation.AnimationTimer;
+import javafx.event.EventHandler;
+import javafx.scene.input.KeyEvent;
+import java.util.ArrayList;
+
+public class trexRunner extends Application {
+    public static void main(String[] args) {
+        launch(args);
+    }
+
+    @Override
+    public void start(Stage gameStage) {
+        gameStage.setTitle("T-Rex Runner");
+
+        Group root = new Group();        
+        Scene gameScene = new Scene(root); 
+        gameStage.setScene(gameScene);     
+
+        Canvas gameCanvas = new Canvas(800, 230);
+        root.getChildren().add(gameCanvas);
+
+        GraphicsContext gc = gameCanvas.getGraphicsContext2D();      
+        String ground = "________________________________________________________________";
+        gc.setFill(Color.BLACK);    
+        gc.setLineWidth(2);                        
+        Font gameFont = Font.font("Times New Roman", FontWeight.LIGHT, 20);
+        gc.setFont(gameFont);        
+
+        Image trex = new Image("trex.png");  
+        Image cactus = new Image("cactus.png");
+
+        ArrayList&lt;String&gt; input = new ArrayList&lt;String&gt;();
+
+        gameScene.setOnKeyPressed(
+            new EventHandler&lt;KeyEvent&gt;()
+            {
+                public void handle(KeyEvent e)
+                {
+                    String code = e.getCode().toString();
+                    if ( !input.contains(code) )
+                        input.add( code );
+                }
+            });
+
+        gameScene.setOnKeyReleased(
+            new EventHandler&lt;KeyEvent&gt;()
+            {
+                public void handle(KeyEvent e)
+                {
+                    String code = e.getCode().toString();
+                    input.remove( code );
+                }
+            });
+
+        new AnimationTimer() {
+            long lastNanoTime = System.nanoTime();
+            int cactusX = 800;
+            int trexY = 100;
+            boolean trexPeak = false;
+            public void handle(long currentNanoTime) {
+                long t = (currentNanoTime - lastNanoTime);
+                if (t &gt;= 16666666) {
+                    while (t &gt;= 16666666) {
+
+                        if (input.contains("SPACE") || input.contains("UP")) {
+                            if (!trexPeak &amp;&amp; trexY&gt;5) {
+                                trexY -= 5;
+                            } else if (!trexPeak &amp;&amp; trexY&lt;=5) {
+                                trexPeak = true;
+                            } else if (trexPeak &amp;&amp; trexY&lt;100) {
+                                trexY += 5;
+                            } else if (trexPeak &amp;&amp; trexY&gt;=100) {
+                                trexPeak = false;
+                            } else {
+                                System.out.println("Error!");
+                            }
+                        } else {
+                            trexY = 100;
+                        }
+
+                        if (cactusX &lt;= 30) {
+                            cactusX = 700;
+                        } else {
+                            cactusX -= 5;
+                        }
+                        t -= 16666666;
+                    }
+                    gc.clearRect(0, 0, 800, 230);
+                    gc.fillText(ground, 80, 160);
+                    gc.drawImage(trex, 80, trexY);
+                    gc.drawImage(cactus, cactusX, 110);
+                    lastNanoTime = System.nanoTime();
+                }
+            }
+        }.start();
+
+        gameStage.show();
+    }
+}
 </code></pre>
       </section>
     </div>
